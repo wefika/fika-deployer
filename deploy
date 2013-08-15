@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby -w
 
+require "rubygems"
+require "json"
+
 def die_with msg
   puts msg; exit
 end
-
-require "etc"
-require "json"
 
 # Make sure that packages are valid
 package = ARGV.first
@@ -20,7 +20,7 @@ version = ARGV[1].match(/\d+\.\d+\.\d+/).to_a.first rescue nil
 die_with("Version must be in format number.number.number") if version.nil?
 
 # Load configuration
-config = JSON.load(File.read("#{Etc.getpwuid.dir}/.fika_developer")) rescue nil
+config = JSON.load(File.read("#{ENV['HOME']}/.fika_developer")) rescue nil
 die_with("Missing .fika_developer configuration.") if config.nil?
 
 # Release notes
