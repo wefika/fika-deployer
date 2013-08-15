@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby -w
+
+def die_with msg
+  puts msg; exit
+end
+
+require "etc"
+require "json"
+
+# Make sure that packages are valid
+package = ARGV.first
+die_with("Only *.apk or *.ipa are allowed package.") unless package =~ /apk|ipa/
+
+# Determine OS
+os = {'apk' => "android", 'ipa' => "ios"}[Regexp.last_match.to_s]
+die_with("Only android or ios packages accepted") if os.nil?
+
+# Determine version
+version = ARGV[1].match(/\d+\.\d+\.\d+/).to_a.first rescue nil
+die_with("Version must be in format number.number.number") if version.nil?
+
+# Load configuration
+config = JSON.load(File.read("#{Etc.getpwuid.dir}/.fika_developer")) rescue nil
+die_with("Missing .fika_developer configuration.") if config.nil?
+
+# Release notes
+release_notes = ARGV[2] rescue nil
+die_with("Last parameter must be release note. Fill it in!") if release_notes.nil?
+
+post_to_tf = system("curl http://testflightapp.com/api/builds.json \
+-F file=@#{package} \
+-F api_token='#{config['testflight_api_token']}' \
+-F team_token='#{config['testflight_team_token']}' \
+-F notes='#{release_notes}' \
+-F notify=True")
+
+if post_to_tf
+  puts "Upload to TestFlight was successful."
+else
+  die_with("Could not upload to TestFlight.")
+end
+
+
