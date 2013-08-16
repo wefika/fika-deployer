@@ -43,7 +43,8 @@ post_to_tf = system("curl http://testflightapp.com/api/builds.json \
 -F api_token='#{config['testflight_api_token']}' \
 -F team_token='#{config['testflight_team_token']}' \
 -F notes='#{release_notes}' \
--F notify=True")
+-F notify=True \
+-F distribution_lists='#{os}'" )
 
 if post_to_tf
   puts "Upload to TestFlight was successful."
