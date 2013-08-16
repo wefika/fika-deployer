@@ -20,8 +20,19 @@ version = ARGV[1].match(/\d+\.\d+\.\d+/).to_a.first rescue nil
 die_with("Version must be in format number.number.number") if version.nil?
 
 # Load configuration
-config = JSON.load(File.read("#{ENV['HOME']}/.fika_developer")) rescue nil
-die_with("Missing .fika_developer configuration.") if config.nil?
+
+
+
+file_path = "#{ENV['HOME']}/.fika_developer"
+die_with("Missing .fika_developer configuration.") unless File.exists?(file_path)
+
+file = File.new(file_path,"r")
+raw_string = ""
+file.each { |line| raw_string += line; }
+file.close
+
+config = JSON.load(raw_string) rescue nil
+die_with("JSON parsing failed") if config.nil?
 
 # Release notes
 release_notes = ARGV[2] rescue nil
