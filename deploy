@@ -20,9 +20,6 @@ version = ARGV[1].match(/\d+\.\d+\.\d+/).to_a.first rescue nil
 die_with("Version must be in format number.number.number") if version.nil?
 
 # Load configuration
-
-
-
 file_path = "#{ENV['HOME']}/.fika_developer"
 die_with("Missing .fika_developer configuration.") unless File.exists?(file_path)
 
@@ -47,9 +44,18 @@ post_to_tf = system("curl http://testflightapp.com/api/builds.json \
 -F distribution_lists='#{os}'" )
 
 if post_to_tf
+  puts ""
   puts "Upload to TestFlight was successful."
 else
   die_with("Could not upload to TestFlight.")
 end
+
+# Create new notification for HC
+hc_room_id = config["hc_room_id"]
+hc_api_key = config["hc_api_key"]
+
+system = "curl -d \"room_id=#{hc_room_id}&from=fika-deployer&message=New+version+for+#{os}+was+deployed.+Version:+#{version}.&color=green\" \
+https://api.hipchat.com/v1/rooms/message?auth_token=#{hc_api_key}&format=json"
+
 
 
