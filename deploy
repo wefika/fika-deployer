@@ -41,7 +41,7 @@ post_to_tf = system("curl http://testflightapp.com/api/builds.json \
 -F team_token='#{config['testflight_team_token']}' \
 -F notes='#{release_notes}' \
 -F notify=True \
--F distribution_lists='#{os}'" )
+-F distribution_lists='#{os}' 1>/dev/null" )
 
 if post_to_tf
   puts ""
@@ -51,11 +51,11 @@ else
 end
 
 # Create new notification for HC
-hc_room_id = config["hc_room_id"]
-hc_api_key = config["hc_api_key"]
+hc_room_id, hc_api_key = config["hc_room_id"], config["hc_api_key"]
+hc_post = system("curl -d \"room_id=#{hc_room_id}&from=fika-deployer&message=New+version+for+#{os}+was+deployed.+Version:+#{version}.&color=green\" \
+https://api.hipchat.com/v1/rooms/message?auth_token=#{hc_api_key}&format=json")
 
-system = "curl -d \"room_id=#{hc_room_id}&from=fika-deployer&message=New+version+for+#{os}+was+deployed.+Version:+#{version}.&color=green\" \
-https://api.hipchat.com/v1/rooms/message?auth_token=#{hc_api_key}&format=json"
+puts "Done."
 
 
 
