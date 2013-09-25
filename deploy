@@ -51,13 +51,13 @@ else
 end
 
 # Put file to s3
-put_to_s3 = system("s3cmd -c #{ENV['HOME']}/fika.staging.s3 -P put #{package} s3://staging-bunch-api/pkgs/#{os}/")
-if put_to_s3
-  puts ""
-  puts "Uploaded to S3"
-else
-  die_with("Could not upload to S3.")
-end
+# put_to_s3 = system("s3cmd -c #{ENV['HOME']}/fika.staging.s3 -P put #{package} s3://staging-bunch-api/pkgs/#{os}/")
+# if put_to_s3
+#   puts ""
+#   puts "Uploaded to S3"
+# else
+#   die_with("Could not upload to S3.")
+# end
 
 # Create new notification for HC
 hc_room_id, hc_api_key = config["hc_room_id"], config["hc_api_key"]
