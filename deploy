@@ -35,20 +35,20 @@ die_with("JSON parsing failed") if config.nil?
 release_notes = ARGV[2] rescue nil
 die_with("Last parameter must be release note. Fill it in!") if release_notes.nil?
 
-post_to_tf = system("curl http://testflightapp.com/api/builds.json \
--F file=@#{package} \
--F api_token='#{config['testflight_api_token']}' \
--F team_token='#{config['testflight_team_token']}' \
--F notes='#{release_notes}' \
--F notify=True \
--F distribution_lists='#{os}' 1>/dev/null" )
+# post_to_tf = system("curl http://testflightapp.com/api/builds.json \
+# -F file=@#{package} \
+# -F api_token='#{config['testflight_api_token']}' \
+# -F team_token='#{config['testflight_team_token']}' \
+# -F notes='#{release_notes}' \
+# -F notify=True \
+# -F distribution_lists='#{os}' 1>/dev/null" )
 
-if post_to_tf
-  puts ""
-  puts "Upload to TestFlight was successful."
-else
-  die_with("Could not upload to TestFlight.")
-end
+# if post_to_tf
+#   puts ""
+#   puts "Upload to TestFlight was successful."
+# else
+#   die_with("Could not upload to TestFlight.")
+# end
 
 # Put file to s3
 # put_to_s3 = system("s3cmd -c #{ENV['HOME']}/fika.staging.s3 -P put #{package} s3://staging-bunch-api/pkgs/#{os}/")
