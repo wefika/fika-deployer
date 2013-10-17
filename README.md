@@ -1,5 +1,7 @@
 # fika-deployer script
 
+![fika-deployer](https://dl.dropboxusercontent.com/u/697441/fika-deployer.png)
+
 Use is like this:
 
     ./deploy package.apk 1.0.1 "Updated misc thing" team,xxx
