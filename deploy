@@ -35,6 +35,33 @@ def hc_notify config, msg
   JSON.parse(response.body)
 end
 
+def hockey_upload config, package, os, details={}
+  hockeyapp_token = config["hockeyapp_token"]
+  sha = last_sha.strip
+
+  request = %x( curl -s -F "status=2" \
+    -F "notify=1" \
+    -F "notes=#{details['release_notes'].strip}" \
+    -F "notes_type=0" \
+    -F "release_type=0" \
+    -F "tags=#{details['tags'].strip}" \
+    -F "commit_sha=#{sha}" \
+    -F "ipa=@#{package}" \
+    -H "X-HockeyAppToken: #{hockeyapp_token}" \
+    https://rink.hockeyapp.net/api/2/apps/upload
+  ).strip
+
+  if not(request.nil?)
+    return JSON.parse(request) rescue nil
+  end
+
+  nil
+end
+
+def last_sha
+  %x( git rev-list --max-count=1 HEAD ).strip
+end
+
 # Make sure that packages are valid
 package = ARGV.first
 die_with("Only *.apk or *.ipa are allowed package.") unless package =~ /apk|ipa/
@@ -51,7 +78,6 @@ die_with("Version must be in format number.number.number") if version.nil?
 file_path = "#{ENV['HOME']}/.fika_developer"
 die_with("Missing .fika_developer configuration.") unless File.exists?(file_path)
 
-# Parse configuration
 file = File.new file_path,"r"
 raw_string = ""
 file.each { |line| raw_string += line; }
@@ -59,13 +85,23 @@ file.close
 config = JSON.load(raw_string) rescue nil
 die_with("JSON parsing failed") if config.nil?
 
-# Release notes
 release_notes = ARGV[2] rescue nil
-die_with("Last parameter must be release note. Fill it in!") if release_notes.nil?
+die_with("3rd parameter must be release note!") if release_notes.nil?
 
-puts hc_notify config, "New version for #{os} was deployed. Version: #{version}"
-exit
+tags = ARGV[3] rescue nil
+die_with("4th parameter must have tags!") if tags.nil?
 
+upload = hockey_upload config, package, os, { "tags" => tags, "release_notes" => release_notes }
+die_with("Upload to HockeyApp failed!") if upload.nil?
+
+config_url = upload["config_url"]
+
+icon = {
+  "android"=>"https://dujrsrsgsd3nh.cloudfront.net/img/emoticons/android.png",
+  "ios"=>"https://dujrsrsgsd3nh.cloudfront.net/img/emoticons/beer.png"}[os.to_s]
+
+hc_notify config, "New version for <img src=\"#{icon}\"/> was deployed. Version: #{version} Tags: #{tags}
+\n URL: <a href=\"#{config_url}\">#{config_url}</a>"
 
 puts "Done."
 
