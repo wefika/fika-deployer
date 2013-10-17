@@ -51,7 +51,7 @@ else
 end
 
 # Put file to s3
-put_to_s3 = system("s3cmd -c #{ENV['HOME']}/fika.staging.s3 -P put #{package} s3://staging-bunch-api/pkgs/#{os}/")
+put_to_s3 = system("s3cmd -c #{ENV['HOME']}/.fika.staging.s3 -P put #{package} s3://staging-bunch-api/pkgs/#{os}/")
 if put_to_s3
   puts ""
   puts "Uploaded to S3"
